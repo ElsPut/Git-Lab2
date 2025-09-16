@@ -6,9 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+      - name: npm audit
+        run: |
+          npm ci
+          npm audit --audit-level=moderate
       - name: Build image
         run: |
           docker build -t myapp:latest .
+      - name: Scan image with Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy image --exit-code 1 --severity CRITICAL myapp:latest
       - name: Sign in to Azure
         uses: azure/login@v2
         with:
