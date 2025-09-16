@@ -22,4 +22,4 @@ app.get('/', (req, res) => {
   throw new Error('detailed error info: stack trace...');
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 8080);
