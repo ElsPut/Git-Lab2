@@ -1,0 +1,25 @@
+name: Build and Deploy
+on: [push]
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: |
+          docker build -t myapp:latest .
+      - name: Push to ACR
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_USER }} -p ${{ secrets.AZURE_PASS }} --tenant ${{ secrets.AZURE_TENANT }}
+          az acr login -n sslablabacr
+          docker tag myapp:latest sslablabacr.azurecr.io/myapp:latest
+          docker push sslablabacr.azurecr.io/myapp:latest
+      - name: Deploy to WebApp
+        run: |
+          az webapp config container set \
+          -g ss-lab-rg \
+          -n sslab-webapp \
+          --docker-custom-image-name sslablabacr.azurecr.io/myapp:latest \
+          --docker-registry-server-url https://sslablabacr.azurecr.io \
+          --docker-registry-server-user <USERNAME> \
+          --docker-registry-server-password <PASSWORD>
