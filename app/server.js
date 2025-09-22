@@ -23,16 +23,16 @@ app.get('/admin', (req, res) => {
   }
 });
 
-// app.get('/', (req, res) => {
-//   res.send('App is running securely 🎉');
-// });
+ app.get('/', (req, res) => {
+   res.send('App is running securely 🎉');
+ });
 
 
 // verbose error (debug) enabled in production
-app.use((err, req, res, next) => {
-  console.error(err); // log internally
-  res.status(500).send("Something went wrong");
-});
+// app.use((err, req, res, next) => {
+//  console.error(err); // log internally
+//  res.status(500).send("Something went wrong");
+// });
 
 
 app.listen(process.env.PORT || 8080);
