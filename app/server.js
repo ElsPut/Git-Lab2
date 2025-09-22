@@ -22,6 +22,11 @@ app.get('/admin', (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('App is running securely 🎉');
+});
+
+
 // verbose error (debug) enabled in production
 app.use((err, req, res, next) => {
   console.error(err); // log internally
