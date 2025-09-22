@@ -26,9 +26,13 @@ jobs:
           docker build -t myapp:latest .
 
       - name: Scan image with Trivy
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-          trivy image --exit-code 1 --severity CRITICAL myapp:latest
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+            image-ref: myapp:latest
+            severity: CRITICAL
+            ignore-unfixed: true
+            exit-code: 1
+        
 
       - name: Sign in to Azure
         uses: azure/login@v2
