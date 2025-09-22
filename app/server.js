@@ -55,4 +55,6 @@ app.get('/admin', async (req, res) => {
 // });
 
 
-app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 8080, () => {
+  console.log(`Server listening on port ${process.env.PORT || 8080}`);
+});
