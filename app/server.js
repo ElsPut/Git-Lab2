@@ -9,19 +9,35 @@ app.use(cors({ origin: "https://sslab-webappels.azurewebsites.net/" }));
 // insecure: uses a default password if env var missing
 
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const { DefaultAzureCredential } = require("@azure/identity");
+const { SecretClient } = require("@azure/keyvault-secrets");
 
-app.get('/admin', (req, res) => {
-  if (!process.env.ADMIN_PASSWORD) {
-    return res.status(500).send("Admin password missing — please configure ADMIN_PASSWORD.");
-  }
-  const pw = req.query.pw;
-  if (pw === ADMIN_PASSWORD) {
-    res.send('Welcome admin');
-  } else {
-    res.status(401).send('Unauthorized');
+const credential = new DefaultAzureCredential();
+const vaultName = process.env.KEYVAULT_NAME;
+const url = `https://${vaultName}.vault.azure.net`;
+const client = new SecretClient(url, credential);
+
+async function getAdminPassword() {
+  const secret = await client.getSecret("ADMIN-PASSWORD");
+  return secret.value;
+}
+
+
+app.get('/admin', async (req, res) => {
+  try {
+    const ADMIN_PASSWORD = await getAdminPassword();
+
+    if (req.query.pw === ADMIN_PASSWORD) {
+      res.send("Welcome admin");
+    } else {
+      res.status(401).send("Unauthorized");
+    }
+  } catch (err) {
+    console.error("Key Vault error:", err);
+    res.status(500).send("Error retrieving admin password");
   }
 });
+
 
  app.get('/', (req, res) => {
    res.send('App is running securely 🎉');
