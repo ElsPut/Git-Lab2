@@ -2,7 +2,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
-COPY . .
+COPY app ./app
 
 FROM node:18-alpine
 WORKDIR /app
