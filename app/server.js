@@ -24,17 +24,21 @@ async function getAdminPassword() {
 
 
 app.get('/admin', async (req, res) => {
-  try {
-    const ADMIN_PASSWORD = await getAdminPassword();
+  const auth = req.headers['authorization'];
 
-    if (req.query.pw === ADMIN_PASSWORD) {
-      res.send("Welcome admin");
-    } else {
-      res.status(401).send("Unauthorized");
-    }
-  } catch (err) {
-    console.error("Key Vault error:", err);
-    res.status(500).send("Error retrieving admin password");
+  if (!auth || !auth.startsWith("Basic ")) {
+    res.setHeader("WWW-Authenticate", "Basic realm=admin");
+    return res.status(401).send("Authentication required");
+  }
+
+  const base64 = auth.split(" ")[1];
+  const [user, pass] = Buffer.from(base64, "base64").toString().split(":");
+
+  const ADMIN_PASSWORD = await getAdminPassword();
+  if (user === "admin" && pass === ADMIN_PASSWORD) {
+    res.send("Welcome admin");
+  } else {
+    res.status(401).send("Unauthorized");
   }
 });
 
