@@ -7,13 +7,14 @@ app.use(cors({ origin: "https://sslab-webappels.azurewebsites.net/" }));
 
 
 // insecure: uses a default password if env var missing
-if (!process.env.ADMIN_PASSWORD) {
-  throw new Error("Missing ADMIN_PASSWORD");
-}
+
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 app.get('/admin', (req, res) => {
+  if (!process.env.ADMIN_PASSWORD) {
+    throw new Error("Missing ADMIN_PASSWORD");
+  }
   const pw = req.query.pw;
   if (pw === ADMIN_PASSWORD) {
     res.send('Welcome admin');
