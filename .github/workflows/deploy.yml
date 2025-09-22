@@ -1,6 +1,10 @@
 name: Build and Deploy
 on: 
   workflow_dispatch
+
+permissions:
+  contents: read
+  security-events: write
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
