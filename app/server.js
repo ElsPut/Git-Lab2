@@ -5,19 +5,23 @@ const cors = require('cors');
 // insecure: allows all origins
 app.use(cors());
 
-const { exec } = require('child_process');
+const dns = require('dns');
 
-// insecure: executes arbitrary command from query string
 app.get('/ping', (req, res) => {
   const host = req.query.host;
-  exec(`ping -c 1 ${host}`, (err, stdout, stderr) => {
-    if (err) {
-      res.status(500).send(`Error: ${stderr}`);
-      return;
-    }
-    res.send(`Output: ${stdout}`);
+  if (!host) return res.status(400).send('host required');
+
+  // very basic validation: host must look like a hostname or IP
+  if (!/^[A-Za-z0-9.-]{1,253}$/.test(host)) {
+    return res.status(400).send('invalid host');
+  }
+
+  dns.lookup(host, (err, address) => {
+    if (err) return res.status(500).send('lookup failed');
+    res.send(`Resolved ${host} -> ${address}`);
   });
 });
+
 
 // insecure: uses a default password if env var missing
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
